@@ -72,7 +72,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
     @Override
     public @Nullable JComponent createComponent() {
-        if (mainPanel == null) {
+        if (mainPanel == null && !GraphicsEnvironment.isHeadless()) {
             createUI();
         }
         return mainPanel;
