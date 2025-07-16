@@ -26,7 +26,25 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     private ClassIconTableModel tableModel;
 
     private static final String[] AVAILABLE_ICONS = {
-        "devicon/postgresql.svg"
+            "microsoft-corporation/document.svg",
+            "microsoft-corporation/mail.svg",
+            "microsoft-corporation/shield.svg",
+            "microsoft-corporation/start.svg",
+            "microsoft-corporation/alert.svg",
+            "microsoft-corporation/chat.svg",
+            "microsoft-corporation/cloud.svg",
+            "material-extensions/readme.svg",
+            "material-extensions/open-api.svg",
+            "material-extensions/swagger.svg",
+            "material-extensions/test-1.svg",
+            "material-extensions/test-2.svg",
+            "material-extensions/todo.svg",
+            "material-extensions/key.svg",
+            "material-extensions/lock.svg",
+            "microsoft-corporation/database.svg",
+            "material-extensions/db.svg",
+            "devicon/postgresql.svg",
+            "devicon/redis.svg",
     };
 
     private static final Map<String, Icon> iconCache = new HashMap<>();
@@ -82,26 +100,26 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         // Create toolbar with add/remove buttons
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table)
-            .setAddAction(e -> {
-                tableModel.addRow();
-                int newRow = tableModel.getRowCount() - 1;
-                table.setRowSelectionInterval(newRow, newRow);
-                table.editCellAt(newRow, 0);
-            })
-            .setRemoveAction(e -> {
-                int selectedRow = table.getSelectedRow();
+                .setAddAction(e -> {
+                    tableModel.addRow();
+                    int newRow = tableModel.getRowCount() - 1;
+                    table.setRowSelectionInterval(newRow, newRow);
+                    table.editCellAt(newRow, 0);
+                })
+                .setRemoveAction(e -> {
+                    int selectedRow = table.getSelectedRow();
 
-                // If table is in editing mode, get the editing row
-                if (table.isEditing()) {
-                    selectedRow = table.getEditingRow();
-                    // Stop editing to ensure proper state
-                    table.getCellEditor().stopCellEditing();
-                }
+                    // If table is in editing mode, get the editing row
+                    if (table.isEditing()) {
+                        selectedRow = table.getEditingRow();
+                        // Stop editing to ensure proper state
+                        table.getCellEditor().stopCellEditing();
+                    }
 
-                if (selectedRow >= 0) {
-                    tableModel.removeRow(selectedRow);
-                }
-            });
+                    if (selectedRow >= 0) {
+                        tableModel.removeRow(selectedRow);
+                    }
+                });
 
         JPanel tablePanel = decorator.createPanel();
         mainPanel.add(tablePanel, BorderLayout.CENTER);
@@ -228,12 +246,11 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     private static class IconListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                boolean isSelected, boolean cellHasFocus) {
+                                                      boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-            if (value instanceof String) {
-                String iconName = (String) value;
-                Icon icon = loadSvgIcon(iconName);
+            if (value instanceof String iconName) {
+                var icon = loadSvgIcon(iconName);
                 setIcon(icon);
                 setText(iconName.replace(".svg", "")); // Display filename without extension
             }
@@ -263,8 +280,8 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, 
-                boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
             comboBox.setSelectedItem(value);
 
             if (isSelected) {
