@@ -131,11 +131,11 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         JLabel explanation1 = new JLabel("• To select all methods in the class, please leave the method name field empty");
         explanation1.setFont(explanation1.getFont().deriveFont(Font.PLAIN, 12f));
-        explanation1.setForeground(UIManager.getColor("Label.disabledForeground"));
+        explanation1.setForeground(UIManager.getColor("Label.foreground"));
 
         JLabel explanation2 = new JLabel("• If multiple rules match, the first one takes precedence");
         explanation2.setFont(explanation2.getFont().deriveFont(Font.PLAIN, 12f));
-        explanation2.setForeground(UIManager.getColor("Label.disabledForeground"));
+        explanation2.setForeground(UIManager.getColor("Label.foreground"));
 
         explanationPanel.add(explanation1);
         explanationPanel.add(Box.createVerticalStrut(5));
