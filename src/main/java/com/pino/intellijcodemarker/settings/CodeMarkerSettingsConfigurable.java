@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,6 +123,25 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         JPanel tablePanel = decorator.createPanel();
         mainPanel.add(tablePanel, BorderLayout.CENTER);
+
+        // Add explanatory text
+        JPanel explanationPanel = new JPanel();
+        explanationPanel.setLayout(new BoxLayout(explanationPanel, BoxLayout.Y_AXIS));
+        explanationPanel.setBorder(JBUI.Borders.empty(10, 0, 0, 0));
+
+        JLabel explanation1 = new JLabel("• To select all methods in the class, please leave the method name field empty");
+        explanation1.setFont(explanation1.getFont().deriveFont(Font.PLAIN, 12f));
+        explanation1.setForeground(UIManager.getColor("Label.disabledForeground"));
+
+        JLabel explanation2 = new JLabel("• If multiple rules match, the first one takes precedence");
+        explanation2.setFont(explanation2.getFont().deriveFont(Font.PLAIN, 12f));
+        explanation2.setForeground(UIManager.getColor("Label.disabledForeground"));
+
+        explanationPanel.add(explanation1);
+        explanationPanel.add(Box.createVerticalStrut(5));
+        explanationPanel.add(explanation2);
+
+        mainPanel.add(explanationPanel, BorderLayout.SOUTH);
 
         // Load current settings
         reset();
