@@ -14,7 +14,9 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.Font;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +99,11 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         table.getColumnModel().getColumn(0).setPreferredWidth(250);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
         table.getColumnModel().getColumn(2).setPreferredWidth(30);
+
+        // Enable drag-and-drop for row reordering
+        table.setDragEnabled(true);
+        table.setDropMode(DropMode.INSERT_ROWS);
+        table.setTransferHandler(new TableRowTransferHandler());
 
         // Create toolbar with add/remove buttons
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table)
@@ -266,6 +273,105 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             mappings.clear();
             mappings.addAll(newMappings);
             fireTableDataChanged();
+        }
+
+        public void moveRow(int fromIndex, int toIndex) {
+            if (fromIndex >= 0 && fromIndex < mappings.size() && 
+                toIndex >= 0 && toIndex < mappings.size() && 
+                fromIndex != toIndex) {
+
+                CodeMarkerSettingsState.ClassIconMapping mapping = mappings.remove(fromIndex);
+                mappings.add(toIndex, mapping);
+                fireTableRowsUpdated(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex));
+            }
+        }
+    }
+
+    // TransferHandler for drag-and-drop row reordering
+    private class TableRowTransferHandler extends TransferHandler {
+        private final DataFlavor localObjectFlavor = new DataFlavor(Integer.class, "application/x-java-Integer");
+        private int[] indices = null;
+        private int addIndex = -1;
+        private int addCount = 0;
+
+        @Override
+        public boolean canImport(TransferHandler.TransferSupport support) {
+            boolean canImport = support.getComponent() instanceof JTable && support.isDrop() && support.isDataFlavorSupported(localObjectFlavor);
+            support.setShowDropLocation(canImport);
+            return canImport;
+        }
+
+        @Override
+        protected Transferable createTransferable(JComponent c) {
+            assert (c == table);
+            indices = table.getSelectedRows();
+            return new Transferable() {
+                @Override
+                public DataFlavor[] getTransferDataFlavors() {
+                    return new DataFlavor[]{localObjectFlavor};
+                }
+
+                @Override
+                public boolean isDataFlavorSupported(DataFlavor flavor) {
+                    return localObjectFlavor.equals(flavor);
+                }
+
+                @Override
+                public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+                    if (!isDataFlavorSupported(flavor)) {
+                        throw new UnsupportedFlavorException(flavor);
+                    }
+                    return indices[0];
+                }
+            };
+        }
+
+        @Override
+        public int getSourceActions(JComponent c) {
+            return TransferHandler.MOVE;
+        }
+
+        @Override
+        public boolean importData(TransferHandler.TransferSupport support) {
+            if (!canImport(support)) {
+                return false;
+            }
+
+            JTable.DropLocation dl = (JTable.DropLocation) support.getDropLocation();
+            int dropRow = dl.getRow();
+            int max = tableModel.getRowCount();
+            if (dropRow < 0 || dropRow > max) {
+                dropRow = max;
+            }
+
+            addIndex = dropRow;
+            addCount = indices != null ? indices.length : 0;
+
+            try {
+                Integer rowFrom = (Integer) support.getTransferable().getTransferData(localObjectFlavor);
+                if (rowFrom != null && rowFrom != dropRow) {
+                    if (dropRow > rowFrom) {
+                        dropRow--;
+                    }
+                    tableModel.moveRow(rowFrom, dropRow);
+                    table.getSelectionModel().addSelectionInterval(dropRow, dropRow);
+                    return true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void exportDone(JComponent c, Transferable data, int action) {
+            if ((action == TransferHandler.MOVE) && (indices != null)) {
+                // Cleanup is handled in importData
+            }
+            indices = null;
+            addCount = 0;
+            addIndex = -1;
         }
     }
 
