@@ -85,15 +85,17 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         // Set up table columns
         table.getColumnModel().getColumn(0).setHeaderValue("Class Name");
-        table.getColumnModel().getColumn(1).setHeaderValue("Icon");
+        table.getColumnModel().getColumn(1).setHeaderValue("Method Name");
+        table.getColumnModel().getColumn(2).setHeaderValue("Icon");
 
         // Set up icon column with combo box
-        table.getColumnModel().getColumn(1).setCellEditor(new IconComboBoxEditor());
-        table.getColumnModel().getColumn(1).setCellRenderer(new IconComboBoxRenderer());
+        table.getColumnModel().getColumn(2).setCellEditor(new IconComboBoxEditor());
+        table.getColumnModel().getColumn(2).setCellRenderer(new IconComboBoxRenderer());
 
         // Set column widths
-        table.getColumnModel().getColumn(0).setPreferredWidth(300);
-        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(0).setPreferredWidth(250);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
+        table.getColumnModel().getColumn(2).setPreferredWidth(30);
 
         // Create toolbar with add/remove buttons
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table)
@@ -141,7 +143,8 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             CodeMarkerSettingsState.ClassIconMapping saved = settings.classIconMappings.get(i);
 
             if (!current.getClassName().equals(saved.getClassName()) ||
-                !current.getIconName().equals(saved.getIconName())) {
+                !current.getIconName().equals(saved.getIconName()) ||
+                !current.getMethodName().equals(saved.getMethodName())) {
                 return true;
             }
         }
@@ -166,7 +169,8 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             List<CodeMarkerSettingsState.ClassIconMapping> copiedMappings = new ArrayList<>();
             for (CodeMarkerSettingsState.ClassIconMapping original : settings.classIconMappings) {
                 copiedMappings.add(new CodeMarkerSettingsState.ClassIconMapping(
-                    original.getClassName(), 
+                    original.getClassName(),
+                    original.getMethodName(),
                     original.getIconName()
                 ));
             }
@@ -192,22 +196,27 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         @Override
         public int getColumnCount() {
-            return 2;
+            return 3;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             CodeMarkerSettingsState.ClassIconMapping mapping = mappings.get(rowIndex);
-            return columnIndex == 0 ? mapping.getClassName() : mapping.getIconName();
+            return switch (columnIndex) {
+                case 0 -> mapping.getClassName();
+                case 1 -> mapping.getMethodName();
+                case 2 -> mapping.getIconName();
+                default -> "";
+            };
         }
 
         @Override
         public void setValueAt(Object value, int rowIndex, int columnIndex) {
             CodeMarkerSettingsState.ClassIconMapping mapping = mappings.get(rowIndex);
-            if (columnIndex == 0) {
-                mapping.setClassName((String) value);
-            } else {
-                mapping.setIconName((String) value);
+            switch (columnIndex) {
+                case 0 -> mapping.setClassName((String) value);
+                case 1 -> mapping.setMethodName((String) value);
+                case 2 -> mapping.setIconName((String) value);
             }
             fireTableCellUpdated(rowIndex, columnIndex);
         }
@@ -218,7 +227,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         }
 
         public void addRow() {
-            mappings.add(new CodeMarkerSettingsState.ClassIconMapping("", AVAILABLE_ICONS[0]));
+            mappings.add(new CodeMarkerSettingsState.ClassIconMapping("", "", AVAILABLE_ICONS[0]));
             fireTableRowsInserted(mappings.size() - 1, mappings.size() - 1);
         }
 

@@ -47,7 +47,7 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
             }
 
             var facade = JavaPsiFacade.getInstance(project);
-            var iconName = getTargetClassIcon(project, facade, containingClass);
+            var iconName = getTargetClassIcon(project, facade, containingClass, method);
             if (iconName != null) {
                 var icon = IconLoader.getIcon("/icons/" + iconName, MyLineMarkerProvider.class);
                 var provider = LanguageDocumentation.INSTANCE.forLanguage(JavaLanguage.INSTANCE);
@@ -83,7 +83,7 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
         // do nothing
     }
 
-    private String getTargetClassIcon(Project project, JavaPsiFacade facade, PsiClass psiClass) {
+    private String getTargetClassIcon(Project project, JavaPsiFacade facade, PsiClass psiClass, PsiMethod method) {
         if (psiClass == null) {
             return null;
         }
@@ -97,14 +97,28 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
 
             PsiClass targetClass = facade.findClass(mapping.className.trim(), GlobalSearchScope.allScope(project));
             if (targetClass != null) {
+                boolean classMatches = false;
+
                 // Direct match
                 if (psiClass.equals(targetClass)) {
-                    return mapping.iconName;
+                    classMatches = true;
+                }
+                // Check if psiClass inherits from targetClass (works for both classes and interfaces)
+                else if (psiClass.isInheritor(targetClass, true)) {
+                    classMatches = true;
                 }
 
-                // Check if psiClass inherits from targetClass (works for both classes and interfaces)
-                if (psiClass.isInheritor(targetClass, true)) {
-                    return mapping.iconName;
+                if (classMatches) {
+                    // If method name is specified in mapping, check if it matches
+                    if (mapping.methodName != null && !mapping.methodName.trim().isEmpty()) {
+                        if (method != null && method.getName().equals(mapping.methodName.trim())) {
+                            return mapping.iconName;
+                        }
+                        // If method name is specified but doesn't match, continue to next mapping
+                    } else {
+                        // If no method name specified, return icon for class match
+                        return mapping.iconName;
+                    }
                 }
             }
         }
