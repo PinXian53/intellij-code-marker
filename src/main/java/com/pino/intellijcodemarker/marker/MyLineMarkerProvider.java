@@ -12,15 +12,21 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.pino.intellijcodemarker.settings.CodeMarkerSettingsState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class MyLineMarkerProvider implements LineMarkerProvider {
+
+
+
+    public MyLineMarkerProvider() {
+        // 無參數建構子，確保 Plugin 可以正確實例化
+    }
 
     @Override
     public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
@@ -29,7 +35,7 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
         }
 
         var methodName = methodCall.getMethodExpression().getReferenceName();
-        System.out.println("[DEBUG_LOG] Method name: " + methodName);
+        System.out.println("Method Name: " + methodName);
 
         var method = methodCall.resolveMethod();
         if (method == null) {
@@ -39,23 +45,19 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
         var project = element.getProject();
         var containingClass = method.getContainingClass();
         var facade = JavaPsiFacade.getInstance(project);
-
-        String iconName = getIconForTargetClass(project, facade, containingClass);
-        if (iconName != null) {
-            Icon icon = loadIcon(iconName);
-            if (icon != null) {
-                var provider = LanguageDocumentation.INSTANCE.forLanguage(JavaLanguage.INSTANCE);
-                var htmlText = provider.generateDoc(method, method);
-                return new LineMarkerInfo<>(
-                        element,
-                        element.getTextRange(),
-                        icon,
-                        elt -> htmlText,
-                        this::showPopup,
-                        GutterIconRenderer.Alignment.LEFT,
-                        () -> "Code marker icon"
-                );
-            }
+        final Icon MY_ICON = IconLoader.getIcon("/icons/call-api.svg", MyLineMarkerProvider.class);
+        if (isTagrgetClass(project, facade, containingClass)) {
+            var provider = LanguageDocumentation.INSTANCE.forLanguage(JavaLanguage.INSTANCE);
+            var htmlText = provider.generateDoc(method, method);
+            return new LineMarkerInfo<>(
+                    element,
+                    element.getTextRange(),
+                    MY_ICON,
+                    elt -> htmlText,
+                    this::showPopup,
+                    GutterIconRenderer.Alignment.LEFT,
+                    () -> "My icon accessible name"
+            );
         }
         return null;
     }
@@ -70,36 +72,23 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
         // optional
     }
 
-    private String getIconForTargetClass(Project project, JavaPsiFacade facade, PsiClass psiClass) {
-        if (psiClass == null) {
-            return null;
-        }
-
-        CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
-
-        for (CodeMarkerSettingsState.ClassIconMapping mapping : settings.classIconMappings) {
-            if (mapping.getClassName() != null && !mapping.getClassName().isEmpty()) {
-                PsiClass targetClass = facade.findClass(mapping.getClassName(), GlobalSearchScope.allScope(project));
-                if (targetClass != null && psiClass.isInheritor(targetClass, true)) {
-                    return mapping.getIconName();
-                }
+    private boolean isTagrgetClass(Project project, JavaPsiFacade facade, PsiClass psiClass) {
+        var target = new ArrayList<PsiClass>();
+        target.add(facade.findClass("com.cathay.middleware.repository.EmployeeRepository", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("org.springframework.data.jpa.repository.JpaRepository", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkba.aply.client.IhrMvpApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkba.aply.client.IhrCoreApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkbc.unitmang.client.IhrMvpApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkbc.unitmang.client.IhrCoreApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkbd.bumang.client.IhrMvpApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkbd.bumang.client.IhrCoreApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkby.config.client.IhrMvpApiClient", GlobalSearchScope.allScope(project)));
+        target.add(facade.findClass("com.cathay.fkby.config.client.IhrCoreApiClient", GlobalSearchScope.allScope(project)));
+        for (PsiClass baseClass : target) {
+            if (baseClass != null && psiClass.isInheritor(baseClass, true)) {
+                return true;
             }
         }
-
-        return null;
-    }
-
-    private Icon loadIcon(String iconName) {
-        if (iconName == null || iconName.isEmpty()) {
-            return null;
-        }
-
-        try {
-            // Try to load icon from resources/icons directory
-            return IconLoader.getIcon("/icons/" + iconName + ".svg", MyLineMarkerProvider.class);
-        } catch (Exception e) {
-            // If loading fails, return null
-            return null;
-        }
+        return false;
     }
 }
