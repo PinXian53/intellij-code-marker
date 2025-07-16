@@ -162,7 +162,15 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     public void reset() {
         if (tableModel != null) {
             CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
-            tableModel.setMappings(new ArrayList<>(settings.classIconMappings));
+            // Create deep copies of the mappings to prevent immediate changes to settings
+            List<CodeMarkerSettingsState.ClassIconMapping> copiedMappings = new ArrayList<>();
+            for (CodeMarkerSettingsState.ClassIconMapping original : settings.classIconMappings) {
+                copiedMappings.add(new CodeMarkerSettingsState.ClassIconMapping(
+                    original.getClassName(), 
+                    original.getIconName()
+                ));
+            }
+            tableModel.setMappings(copiedMappings);
         }
     }
 
@@ -260,13 +268,28 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     }
 
     // Combo box editor for icon column
-    private static class IconComboBoxEditor extends DefaultCellEditor {
+    private class IconComboBoxEditor extends DefaultCellEditor {
         private final ComboBox<String> comboBox;
 
         public IconComboBoxEditor() {
             super(new ComboBox<>(new IconComboBoxModel()));
             this.comboBox = (ComboBox<String>) getComponent();
             this.comboBox.setRenderer(new IconListCellRenderer());
+
+            // Set click count to 1 for immediate editing
+            setClickCountToStart(1);
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return comboBox.getSelectedItem();
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            // This will automatically trigger setValueAt in the table model
+            boolean result = super.stopCellEditing();
+            return result;
         }
     }
 
