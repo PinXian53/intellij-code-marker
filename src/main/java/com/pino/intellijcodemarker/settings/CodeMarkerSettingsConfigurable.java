@@ -26,10 +26,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     private ClassIconTableModel tableModel;
 
     private static final String[] AVAILABLE_ICONS = {
-        "call-api.svg",
-        "error.svg",
-        "warning.svg",
-        "info.svg"
+        "devicon/postgresql.svg"
     };
 
     private static final Map<String, Icon> iconCache = new HashMap<>();
