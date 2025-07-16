@@ -32,5 +32,8 @@
 
         <!-- Application service for settings state -->
         <applicationService serviceImplementation="com.pino.intellijcodemarker.settings.CodeMarkerSettingsState"/>
+
+        <!-- Line marker provider -->
+        <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.pino.intellijcodemarker.marker.MyLineMarkerProvider"/>
     </extensions>
 </idea-plugin>
