@@ -93,6 +93,14 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             })
             .setRemoveAction(e -> {
                 int selectedRow = table.getSelectedRow();
+
+                // If table is in editing mode, get the editing row
+                if (table.isEditing()) {
+                    selectedRow = table.getEditingRow();
+                    // Stop editing to ensure proper state
+                    table.getCellEditor().stopCellEditing();
+                }
+
                 if (selectedRow >= 0) {
                     tableModel.removeRow(selectedRow);
                 }
