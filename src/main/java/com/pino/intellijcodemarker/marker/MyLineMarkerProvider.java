@@ -91,7 +91,7 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
         CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
 
         for (CodeMarkerSettingsState.ClassIconMapping mapping : settings.classIconMappings) {
-            if (mapping.className == null || mapping.className.isEmpty()) {
+            if (mapping.className == null || mapping.className.isBlank()) {
                 continue;
             }
 
