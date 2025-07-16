@@ -21,10 +21,6 @@ import java.util.Map;
 
 public class CodeMarkerSettingsConfigurable implements Configurable {
 
-    private JPanel mainPanel;
-    private JBTable table;
-    private ClassIconTableModel tableModel;
-
     private static final String[] AVAILABLE_ICONS = {
             "microsoft-corporation/document.svg",
             "microsoft-corporation/mail.svg",
@@ -42,26 +38,23 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             "material-extensions/key.svg",
             "material-extensions/lock.svg",
             "microsoft-corporation/database.svg",
-            "material-extensions/db.svg",
+            "material-extensions/database.svg",
             "devicon/postgresql.svg",
             "devicon/redis.svg",
     };
-
     private static final Map<String, Icon> iconCache = new HashMap<>();
+
+    private JPanel mainPanel;
+    private JBTable table;
+    private ClassIconTableModel tableModel;
 
     private static Icon loadSvgIcon(String iconName) {
         if (iconCache.containsKey(iconName)) {
             return iconCache.get(iconName);
         }
-
-        try {
-            Icon icon = IconLoader.getIcon("/icons/" + iconName, CodeMarkerSettingsConfigurable.class);
-            iconCache.put(iconName, icon);
-            return icon;
-        } catch (Exception e) {
-            // Fallback to a default icon if loading fails
-            return IconLoader.getIcon("/icons/info.svg", CodeMarkerSettingsConfigurable.class);
-        }
+        var icon = IconLoader.getIcon("/icons/" + iconName, CodeMarkerSettingsConfigurable.class);
+        iconCache.put(iconName, icon);
+        return icon;
     }
 
     @Nls(capitalization = Nls.Capitalization.Title)
@@ -252,7 +245,10 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             if (value instanceof String iconName) {
                 var icon = loadSvgIcon(iconName);
                 setIcon(icon);
-                setText(iconName.replace(".svg", "")); // Display filename without extension
+
+                var nameElement = iconName.split("/");
+                var text = nameElement[nameElement.length - 1].replace(".svg", "");
+                setText(text);
             }
 
             return this;
