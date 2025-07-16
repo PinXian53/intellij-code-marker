@@ -64,7 +64,7 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
                         elt -> htmlText,
                         this::showPopup,
                         GutterIconRenderer.Alignment.LEFT,
-                        () -> "My icon accessible name"
+                        () -> "Code Marker"
                 );
             }
         } catch (Exception e) {
@@ -97,13 +97,13 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
 
             PsiClass targetClass = facade.findClass(mapping.className.trim(), GlobalSearchScope.allScope(project));
             if (targetClass != null) {
-                // Check if psiClass inherits from targetClass (works for both classes and interfaces)
-                if (psiClass.isInheritor(targetClass, true)) {
+                // Direct match
+                if (psiClass.equals(targetClass)) {
                     return mapping.iconName;
                 }
 
-                // Direct match
-                if (psiClass.equals(targetClass)) {
+                // Check if psiClass inherits from targetClass (works for both classes and interfaces)
+                if (psiClass.isInheritor(targetClass, true)) {
                     return mapping.iconName;
                 }
             }
