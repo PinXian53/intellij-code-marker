@@ -55,6 +55,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             "devicon/postgresql.svg",
             "devicon/rabbitmq.svg",
             "devicon/redis.svg",
+            "custom/ftp.svg",
     };
     private static final Map<String, Icon> iconCache = new HashMap<>();
 
