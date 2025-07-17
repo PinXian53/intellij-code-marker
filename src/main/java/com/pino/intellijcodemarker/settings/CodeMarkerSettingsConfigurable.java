@@ -134,7 +134,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         // Add explanatory text
         JPanel explanationPanel = new JPanel();
         explanationPanel.setLayout(new BoxLayout(explanationPanel, BoxLayout.Y_AXIS));
-        explanationPanel.setBorder(JBUI.Borders.empty(10, 0, 0, 0));
+        explanationPanel.setBorder(JBUI.Borders.emptyTop(10));
 
         JLabel explanation1 = new JLabel("• To select all methods in the class, please leave the method name field empty");
         explanation1.setFont(explanation1.getFont().deriveFont(Font.PLAIN, 12f));
