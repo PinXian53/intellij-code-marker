@@ -97,26 +97,15 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
 
             PsiClass targetClass = facade.findClass(mapping.className.trim(), GlobalSearchScope.allScope(project));
             if (targetClass != null) {
-                boolean classMatches = false;
-
-                // Direct match
-                if (psiClass.equals(targetClass)) {
-                    classMatches = true;
-                }
-                // Check if psiClass inherits from targetClass (works for both classes and interfaces)
-                else if (psiClass.isInheritor(targetClass, true)) {
-                    classMatches = true;
-                }
+                // Check if psiClass matches targetClass
+                boolean classMatches = psiClass.equals(targetClass) || psiClass.isInheritor(targetClass, true);
 
                 if (classMatches) {
-                    // If method name is specified in mapping, check if it matches
-                    if (mapping.methodName != null && !mapping.methodName.trim().isEmpty()) {
+                    if (mapping.methodName != null && !mapping.methodName.isBlank()) {
                         if (method != null && method.getName().equals(mapping.methodName.trim())) {
                             return mapping.iconName;
                         }
-                        // If method name is specified but doesn't match, continue to next mapping
                     } else {
-                        // If no method name specified, return icon for class match
                         return mapping.iconName;
                     }
                 }
