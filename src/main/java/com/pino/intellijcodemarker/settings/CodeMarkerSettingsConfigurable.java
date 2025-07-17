@@ -27,7 +27,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     private static final String[] AVAILABLE_ICONS = {
             "microsoft-corporation/document.svg",
             "microsoft-corporation/document-add.svg",
-            "microsoft-corporation/document-edt.svg",
+            "microsoft-corporation/document-edit.svg",
             "microsoft-corporation/mail.svg",
             "microsoft-corporation/shield.svg",
             "microsoft-corporation/star.svg",
