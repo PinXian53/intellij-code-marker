@@ -3,12 +3,12 @@
     <circle cx="20" cy="20" r="18" fill="#2C3E50"/>
 
     <!-- Left Code Bracket -->
-    <path d="M12 12 L9 12 L9 18 L7 20 L9 22 L9 28 L12 28" stroke="#3498DB" stroke-width="2" fill="none" stroke-linecap="square"/>
+    <path d="M12 12 L9 12 L9 18 L7 20 L9 22 L9 28 L12 28" stroke="#2980B9   " stroke-width="2" fill="none" stroke-linecap="square"/>
 
     <!-- Right Code Bracket -->
-    <path d="M28 12 L31 12 L31 18 L33 20 L31 22 L31 28 L28 28" stroke="#3498DB" stroke-width="2" fill="none" stroke-linecap="square"/>
+    <path d="M28 12 L31 12 L31 18 L33 20 L31 22 L31 28 L28 28" stroke="#2980B9" stroke-width="2" fill="none" stroke-linecap="square"/>
 
     <!-- Marker Icon -->
-    <path d="M15 11 L25 11 L25 30 L20 26 L15 30 Z" fill="#ecad55"/>
+    <path d="M15 11 L25 11 L25 30 L20 26 L15 30 Z" fill="#F39C12"/>
 
 </svg>
