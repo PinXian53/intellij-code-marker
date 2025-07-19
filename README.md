@@ -19,8 +19,7 @@ With intuitive visual cues embedded directly into the editor, Intellij Code Mark
 ## 🔧 Key Features
 
 ### 🎯 Custom Highlight Rules
-Easily create rules by entering any class or method name and selecting an icon from a built-in icon set. 
-Once set, the plugin automatically highlights matching elements in the editor.
+Easily create rules by entering any class or method name and selecting an icon from a built-in icon set.
 <br>
 ![settings.png](pic/settings.png)
 
