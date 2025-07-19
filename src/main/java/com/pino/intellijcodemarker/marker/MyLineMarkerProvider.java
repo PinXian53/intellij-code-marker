@@ -6,9 +6,9 @@ import com.intellij.lang.LanguageDocumentation;
 import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.pino.intellijcodemarker.resource.IconResource;
 import com.pino.intellijcodemarker.settings.CodeMarkerSettingsState;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +49,7 @@ public class MyLineMarkerProvider implements LineMarkerProvider {
             var facade = JavaPsiFacade.getInstance(project);
             var iconName = getTargetClassIcon(project, facade, containingClass, method);
             if (iconName != null) {
-                var icon = IconLoader.getIcon("/icons/" + iconName, MyLineMarkerProvider.class);
+                var icon = IconResource.loadSvgIcon(iconName);
                 var provider = LanguageDocumentation.INSTANCE.forLanguage(JavaLanguage.INSTANCE);
                 String htmlText;
                 if (method != null) {
