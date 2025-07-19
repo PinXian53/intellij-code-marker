@@ -34,3 +34,6 @@ Hover over an icon in the gutter to display a tooltip with a custom description.
 This gives you helpful context about the marked element’s role or purpose.
 <br>
 ![line-marker-2.png](pic/line-marker-2.png)
+
+## License & Attributions
+See [ICON.md](./ICON.md) for icon sources and license details.
