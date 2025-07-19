@@ -1,6 +1,6 @@
 # Icon License Notice
 
-This project uses icons from the following third-party project, licensed under the MIT License.
+This project uses icons from the following third-party project.
 
 ---
 
