@@ -13,7 +13,31 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+<b>Code Marker</b> is a developer productivity plugin  .
+It enables you to define custom markers for specific classes or methods by assigning meaningful icons—making key parts of your code instantly recognizable.
+
+With intuitive visual cues embedded directly into the editor, Code Marker helps you identify important components at a glance, streamline navigation, and better understand your project’s structure.
+
+<h2>🔧 Key Features</h2>
+
+<h3>🎯 Custom Highlight Rules</h3>
+Easily create rules by entering any class or method name and selecting an icon from a built-in icon set.
+<br>
+<img src="https://raw.githubusercontent.com/PinXian53/intellij-code-marker/main/pic/settings.png" alt="settings.png" />
+
+<h3>👁️ Visual Indicators in the Editor Gutter</h3>
+Icons appear in the left gutter of the editor, right next to the corresponding code.
+This makes it easy to visually scan and spot critical parts of your application without having to read every line.
+<br>
+<img src="https://raw.githubusercontent.com/PinXian53/intellij-code-marker/main/pic/line-marker.png" alt="line-marker.png" />
+
+
+<h3>💬 Descriptive Tooltips</h3>
+Hover over an icon in the gutter to display a tooltip with a custom description.
+This gives you helpful context about the marked element’s role or purpose.
+<br>
+<img src="https://raw.githubusercontent.com/PinXian53/intellij-code-marker/main/pic/line-marker-2.png" alt="line-marker-2.png" />
+
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
