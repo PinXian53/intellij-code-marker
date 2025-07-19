@@ -36,7 +36,7 @@ public class IconResource {
         AVAILABLE_ICONS.put("palette", "icons/material-extensions/palette.svg");
         AVAILABLE_ICONS.put("slug", "icons/material-extensions/slug.svg");
         AVAILABLE_ICONS.put("tree", "icons/material-extensions/tree.svg");
-        AVAILABLE_ICONS.put("azuresql", "icons/devicon/azuresql.svg");
+        AVAILABLE_ICONS.put("azuresql", "icons/devicon/azure-sql.svg");
         AVAILABLE_ICONS.put("elasticsearch", "icons/devicon/elasticsearch.svg");
         AVAILABLE_ICONS.put("gcp", "icons/devicon/gcp.svg");
         AVAILABLE_ICONS.put("hadoop", "icons/devicon/hadoop.svg");
