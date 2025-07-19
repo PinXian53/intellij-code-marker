@@ -13,9 +13,9 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-<b>Code Marker</b> is a developer productivity plugin  .
+<b>Code Marker</b> is a developer productivity plugin.
 It enables you to define custom markers for specific classes or methods by assigning meaningful icons—making key parts of your code instantly recognizable.
-
+<br>
 With intuitive visual cues embedded directly into the editor, Code Marker helps you identify important components at a glance, streamline navigation, and better understand your project’s structure.
 
 <h2>🔧 Key Features</h2>
