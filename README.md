@@ -1,15 +1,20 @@
 <div align="center">
-    <a href="">
+    <a href="https://plugins.jetbrains.com/plugin/27955-code-marker">
         <img src="./src/main/resources/META-INF/pluginIcon.svg" width="280" height="280" alt="logo"/>
     </a>
 </div>
 
 <h1 align="center">Intellij Code Marker</h1>
 
+<p align="center">
+<a href="https://plugins.jetbrains.com/plugin/27955-code-marker"><img src="https://img.shields.io/jetbrains/plugin/r/stars/27955?style=flat-square"></a>
+<a href="https://plugins.jetbrains.com/plugin/27955-code-marker"><img src="https://img.shields.io/jetbrains/plugin/d/27955-code-marker.svg?style=flat-square"></a>
+<a href="https://plugins.jetbrains.com/plugin/27955-code-marker"><img src="https://img.shields.io/jetbrains/plugin/v/27955-code-marker.svg?style=flat-square"></a>
+</p>
 
 <br>
 
-> Jetbrains Marketplace: 
+> Jetbrains Marketplace: https://plugins.jetbrains.com/plugin/27955-code-marker
 
 <b>Intellij Code Marker</b> is a developer productivity plugin.
 It enables you to define custom markers for specific classes or methods by assigning meaningful icons—making key parts of your code instantly recognizable.
