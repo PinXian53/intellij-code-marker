@@ -9,6 +9,6 @@
     <path d="M28 12 L31 12 L31 18 L33 20 L31 22 L31 28 L28 28" stroke="#3498DB" stroke-width="2" fill="none" stroke-linecap="square"/>
 
     <!-- Marker Icon -->
-    <path d="M16 10 L24 10 L24 30 L20 26 L16 30 Z" fill="#E74C3C"/>
+    <path d="M15 11 L25 11 L25 30 L20 26 L15 30 Z" fill="#ecad55"/>
 
 </svg>
