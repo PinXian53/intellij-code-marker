@@ -11,7 +11,7 @@
 
 > Jetbrains Marketplace: 
 
-<b>Intellij Code Marker</b> is a developer productivity plugin  .
+<b>Intellij Code Marker</b> is a developer productivity plugin.
 It enables you to define custom markers for specific classes or methods by assigning meaningful icons—making key parts of your code instantly recognizable.
 
 With intuitive visual cues embedded directly into the editor, Intellij Code Marker helps you identify important components at a glance, streamline navigation, and better understand your project’s structure.
