@@ -77,3 +77,11 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
+
+---
+
+## Source; [streamline-vectors](https://github.com/webalys-hq/streamline-vectors)
+- Author: webalys-hq
+- License: CC BY 4.0
+- Website: http://streamlinehq.com
+- Adaptation: No modifications made
