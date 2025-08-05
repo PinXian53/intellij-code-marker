@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.pino"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -30,11 +30,10 @@ intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             sinceBuild = "222"
+            untilBuild = "252.*"
         }
 
-        changeNotes = """
-      Initial version
-    """.trimIndent()
+        changeNotes = file("pluginChanges.html").readText(Charsets.UTF_8)
     }
 }
 
