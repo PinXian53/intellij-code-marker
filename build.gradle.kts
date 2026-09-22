@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.pino"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenCentral()
@@ -20,17 +20,20 @@ dependencies {
     intellijPlatform {
         create("IC", "2025.1")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+        // LightJavaCodeInsightFixtureTestCase lives in the Java plugin test framework
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Plugin.Java)
 
         // Add necessary plugin dependencies for compilation here, example:
         bundledPlugin("com.intellij.java")
     }
+
+    testImplementation("junit:junit:4.13.2")
 }
 
 intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             sinceBuild = "222"
-            untilBuild = "261.*"
         }
 
         changeNotes = file("pluginChanges.html").readText(Charsets.UTF_8)

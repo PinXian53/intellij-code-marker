@@ -1,7 +1,10 @@
 package com.pino.intellijcodemarker.settings;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -49,17 +52,19 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         // Set up table columns
         table.getColumnModel().getColumn(0).setHeaderValue("Class Name");
-        table.getColumnModel().getColumn(1).setHeaderValue("Method Name");
-        table.getColumnModel().getColumn(2).setHeaderValue("Icon");
+        table.getColumnModel().getColumn(1).setHeaderValue("Annotation");
+        table.getColumnModel().getColumn(2).setHeaderValue("Method Name");
+        table.getColumnModel().getColumn(3).setHeaderValue("Icon");
 
         // Set up icon column with combo box
-        table.getColumnModel().getColumn(2).setCellEditor(new IconComboBoxEditor());
-        table.getColumnModel().getColumn(2).setCellRenderer(new IconComboBoxRenderer());
+        table.getColumnModel().getColumn(3).setCellEditor(new IconComboBoxEditor());
+        table.getColumnModel().getColumn(3).setCellRenderer(new IconComboBoxRenderer());
 
         // Set column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(250);
-        table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(30);
+        table.getColumnModel().getColumn(1).setPreferredWidth(250);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
+        table.getColumnModel().getColumn(3).setPreferredWidth(30);
 
         // Enable drag-and-drop for row reordering
         table.setDragEnabled(true);
@@ -97,17 +102,21 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         explanationPanel.setLayout(new BoxLayout(explanationPanel, BoxLayout.Y_AXIS));
         explanationPanel.setBorder(JBUI.Borders.emptyTop(10));
 
-        JLabel explanation1 = new JLabel("• To select all methods in the class, please leave the method name field empty");
-        explanation1.setFont(explanation1.getFont().deriveFont(Font.PLAIN, 12f));
-        explanation1.setForeground(UIManager.getColor("Label.foreground"));
-
-        JLabel explanation2 = new JLabel("• If multiple rules match, the first one takes precedence");
-        explanation2.setFont(explanation2.getFont().deriveFont(Font.PLAIN, 12f));
-        explanation2.setForeground(UIManager.getColor("Label.foreground"));
-
-        explanationPanel.add(explanation1);
-        explanationPanel.add(Box.createVerticalStrut(5));
-        explanationPanel.add(explanation2);
+        String[] explanations = {
+                "• Each rule needs a class name or an annotation; when both are filled in, both must match",
+                "• To select all methods in the class, please leave the method name field empty",
+                "• Class names and annotations accept a fully qualified name or a simple name, and both are matched on super classes, interfaces and overridden methods as well",
+                "• If multiple rules match, the first one takes precedence"
+        };
+        for (int i = 0; i < explanations.length; i++) {
+            if (i > 0) {
+                explanationPanel.add(Box.createVerticalStrut(5));
+            }
+            JLabel explanation = new JLabel(explanations[i]);
+            explanation.setFont(explanation.getFont().deriveFont(Font.PLAIN, 12f));
+            explanation.setForeground(UIManager.getColor("Label.foreground"));
+            explanationPanel.add(explanation);
+        }
 
         mainPanel.add(explanationPanel, BorderLayout.SOUTH);
 
@@ -131,6 +140,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             CodeMarkerSettingsState.ClassIconMapping saved = settings.classIconMappings.get(i);
 
             if (!current.getClassName().equals(saved.getClassName()) ||
+                !current.getAnnotationName().equals(saved.getAnnotationName()) ||
                 !current.getIconName().equals(saved.getIconName()) ||
                 !current.getMethodName().equals(saved.getMethodName())) {
                 return true;
@@ -142,10 +152,34 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        if (tableModel != null) {
-            CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
-            settings.classIconMappings.clear();
-            settings.classIconMappings.addAll(tableModel.getMappings());
+        if (tableModel == null) {
+            return;
+        }
+
+        // Commit the cell being edited, otherwise its new value would be lost on apply
+        if (table != null && table.isEditing()) {
+            table.getCellEditor().stopCellEditing();
+        }
+
+        List<CodeMarkerSettingsState.ClassIconMapping> mappings = tableModel.getMappings();
+        for (int i = 0; i < mappings.size(); i++) {
+            CodeMarkerSettingsState.ClassIconMapping mapping = mappings.get(i);
+            if (mapping.getClassName().isBlank() && mapping.getAnnotationName().isBlank()) {
+                throw new ConfigurationException(
+                        "Row " + (i + 1) + ": please fill in a class name or an annotation.");
+            }
+        }
+
+        CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
+        settings.classIconMappings.clear();
+        settings.classIconMappings.addAll(mappings);
+        settings.ruleChanged();
+
+        // Drop the cached markers and repaint the gutters of the files that are already open
+        for (Project project : ProjectManager.getInstance().getOpenProjects()) {
+            if (!project.isDisposed()) {
+                DaemonCodeAnalyzer.getInstance(project).restart();
+            }
         }
     }
 
@@ -158,6 +192,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             for (CodeMarkerSettingsState.ClassIconMapping original : settings.classIconMappings) {
                 copiedMappings.add(new CodeMarkerSettingsState.ClassIconMapping(
                         original.getClassName(),
+                        original.getAnnotationName(),
                         original.getMethodName(),
                         original.getIconName()
                 ));

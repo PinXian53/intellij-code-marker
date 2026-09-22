@@ -24,7 +24,10 @@ With intuitive visual cues embedded directly into the editor, Intellij Code Mark
 ## 🔧 Key Features
 
 ### 🎯 Custom Highlight Rules
-Easily create rules by entering any class or method name and selecting an icon from a built-in icon set.
+Easily create rules by entering any class name, annotation or method name and selecting an icon from a built-in icon set.
+
+Every field you fill in has to match, so a rule can be as broad as every call into an annotated class, or as narrow as a single method on a single class.
+Class names and annotations may be written as a fully qualified name (`org.springframework.stereotype.Service`) or as a simple name (`Service`), and both are matched on super classes, interfaces and overridden methods as well.
 <br>
 ![settings.png](pic/settings.png)
 

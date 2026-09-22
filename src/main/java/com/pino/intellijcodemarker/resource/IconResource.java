@@ -3,14 +3,15 @@ package com.pino.intellijcodemarker.resource;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class IconResource {
 
     private static final Map<String, String> AVAILABLE_ICONS = new LinkedHashMap<>();
-    private static final Map<String, Icon> iconCache = new HashMap<>();
+    // Line markers are computed on several threads, so the cache has to be concurrent
+    private static final Map<String, Icon> iconCache = new ConcurrentHashMap<>();
     private static final String DEFAULT_ICON_NAME = "document";
 
     static {
@@ -95,11 +96,7 @@ public class IconResource {
     }
 
     public static Icon loadSvgIcon(String iconName) {
-        if (iconCache.containsKey(iconName)) {
-            return iconCache.get(iconName);
-        }
-        var icon = IconLoader.getIcon(IconResource.getIconPath(iconName), IconResource.class);
-        iconCache.put(iconName, icon);
-        return icon;
+        return iconCache.computeIfAbsent(iconName,
+                name -> IconLoader.getIcon(IconResource.getIconPath(name), IconResource.class));
     }
 }

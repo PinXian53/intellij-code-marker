@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ClassIconTableModel extends AbstractTableModel {
 
-    public static final int COLUMN_COUNT = 3;
+    public static final int COLUMN_COUNT = 4;
     public static final String DEFAULT_ICON_NAME = IconResource.getDefaultIconName();
 
     private final List<CodeMarkerSettingsState.ClassIconMapping> mappings = new ArrayList<>();
@@ -29,8 +29,9 @@ public class ClassIconTableModel extends AbstractTableModel {
         CodeMarkerSettingsState.ClassIconMapping mapping = mappings.get(rowIndex);
         return switch (columnIndex) {
             case 0 -> mapping.getClassName();
-            case 1 -> mapping.getMethodName();
-            case 2 -> mapping.getIconName();
+            case 1 -> mapping.getAnnotationName();
+            case 2 -> mapping.getMethodName();
+            case 3 -> mapping.getIconName();
             default -> "";
         };
     }
@@ -40,8 +41,9 @@ public class ClassIconTableModel extends AbstractTableModel {
         CodeMarkerSettingsState.ClassIconMapping mapping = mappings.get(rowIndex);
         switch (columnIndex) {
             case 0 -> mapping.setClassName((String) value);
-            case 1 -> mapping.setMethodName((String) value);
-            case 2 -> mapping.setIconName((String) value);
+            case 1 -> mapping.setAnnotationName((String) value);
+            case 2 -> mapping.setMethodName((String) value);
+            case 3 -> mapping.setIconName((String) value);
             default -> {
                 return;
             }
@@ -55,7 +57,7 @@ public class ClassIconTableModel extends AbstractTableModel {
     }
 
     public void addRow() {
-        mappings.add(new CodeMarkerSettingsState.ClassIconMapping("", "", DEFAULT_ICON_NAME));
+        mappings.add(new CodeMarkerSettingsState.ClassIconMapping("", "", "", DEFAULT_ICON_NAME));
         fireTableRowsInserted(mappings.size() - 1, mappings.size() - 1);
     }
 
