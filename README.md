@@ -31,6 +31,11 @@ Class names and annotations may be written as a fully qualified name (`org.sprin
 <br>
 ![settings.png](pic/settings.png)
 
+### 🔁 Reorderable Rules, Import and Export
+Rules are evaluated from top to bottom and the first match wins, so the order matters.
+Drag a row, or use the arrow buttons in the toolbar, to change it.
+The toolbar also exports the rule list to a file and imports it back, which makes a set of rules easy to share with the rest of the team.
+
 ### 👁️ Visual Indicators in the Editor Gutter
 Icons appear in the left gutter of the editor, right next to the corresponding code.
 This makes it easy to visually scan and spot critical parts of your application without having to read every line.

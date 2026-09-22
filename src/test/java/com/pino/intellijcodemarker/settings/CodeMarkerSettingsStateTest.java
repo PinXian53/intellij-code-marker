@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class CodeMarkerSettingsStateTest {
 
@@ -72,6 +73,20 @@ public class CodeMarkerSettingsStateTest {
         assertEquals(1, state.classIconMappings.size());
         assertEquals("com.example.OrderService", state.classIconMappings.get(0).getClassName());
         assertEquals("database", state.classIconMappings.get(0).getIconName());
+    }
+
+    @Test
+    public void exportedStateOnlyContainsTheRules() {
+        CodeMarkerSettingsState state = new CodeMarkerSettingsState();
+        state.classIconMappings.add(
+                new CodeMarkerSettingsState.ClassIconMapping("com.example.OrderService", "save", "database"));
+        state.ruleChanged();
+
+        String xml = JDOMUtil.write(XmlSerializer.serialize(state));
+
+        // The tracker that drives cache invalidation must not leak into the settings or export file
+        assertFalse(xml, xml.contains("modificationCount"));
+        assertFalse(xml, xml.contains("modificationTracker"));
     }
 
     @Test

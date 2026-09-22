@@ -1,24 +1,38 @@
 package com.pino.intellijcodemarker.settings;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.JDOMUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
+import com.intellij.ui.RowsDnDSupport;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.xmlb.XmlSerializer;
+import com.pino.intellijcodemarker.resource.IconResource;
 import com.pino.intellijcodemarker.settings.ui.ClassIconTableModel;
 import com.pino.intellijcodemarker.settings.ui.IconComboBoxEditor;
 import com.pino.intellijcodemarker.settings.ui.IconComboBoxRenderer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,12 +80,10 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(30);
 
-        // Enable drag-and-drop for row reordering
-        table.setDragEnabled(true);
-        table.setDropMode(DropMode.INSERT_ROWS);
-        table.setTransferHandler(new TableRowTransferHandler());
+        // Rows can be dragged to a new position; the reorder buttons below make that discoverable
+        RowsDnDSupport.install(table, tableModel);
 
-        // Create toolbar with add/remove buttons
+        // Create toolbar with add/remove/reorder and import/export buttons
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table)
                 .setAddAction(e -> {
                     tableModel.addRow();
@@ -91,6 +103,24 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
                     if (selectedRow >= 0) {
                         tableModel.removeRow(selectedRow);
+                    }
+                })
+                .setMoveUpAction(button -> moveSelectedRow(-1))
+                .setMoveDownAction(button -> moveSelectedRow(1))
+                .setMoveUpActionName("Move Rule Up")
+                .setMoveDownActionName("Move Rule Down")
+                .addExtraAction(new DumbAwareAction("Export Rules\u2026",
+                        "Save the rules in this table to a file", AllIcons.ToolbarDecorator.Export) {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e) {
+                        exportRules();
+                    }
+                })
+                .addExtraAction(new DumbAwareAction("Import Rules\u2026",
+                        "Load rules from a previously exported file", AllIcons.ToolbarDecorator.Import) {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e) {
+                        importRules();
                     }
                 });
 
@@ -157,9 +187,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         }
 
         // Commit the cell being edited, otherwise its new value would be lost on apply
-        if (table != null && table.isEditing()) {
-            table.getCellEditor().stopCellEditing();
-        }
+        stopEditing();
 
         List<CodeMarkerSettingsState.ClassIconMapping> mappings = tableModel.getMappings();
         for (int i = 0; i < mappings.size(); i++) {
@@ -208,82 +236,113 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         tableModel = null;
     }
 
-    // TransferHandler for drag-and-drop row reordering
-    private class TableRowTransferHandler extends TransferHandler {
-        private final DataFlavor localObjectFlavor = new DataFlavor(Integer.class, "application/x-java-Integer");
-        private int[] indices = null;
+    private void moveSelectedRow(int delta) {
+        stopEditing();
+        int selectedRow = table.getSelectedRow();
+        int targetRow = selectedRow + delta;
+        if (!tableModel.canExchangeRows(selectedRow, targetRow)) {
+            return;
+        }
+        tableModel.exchangeRows(selectedRow, targetRow);
+        table.setRowSelectionInterval(targetRow, targetRow);
+        table.scrollRectToVisible(table.getCellRect(targetRow, 0, true));
+    }
 
-        @Override
-        public boolean canImport(TransferHandler.TransferSupport support) {
-            boolean canImport = support.getComponent() instanceof JTable && support.isDrop() && support.isDataFlavorSupported(localObjectFlavor);
-            support.setShowDropLocation(canImport);
-            return canImport;
+    private void exportRules() {
+        stopEditing();
+
+        FileSaverDescriptor descriptor = new FileSaverDescriptor(
+                "Export Code Marker Rules", "Save the rules in this table to a file", "xml");
+        VirtualFileWrapper target = FileChooserFactory.getInstance()
+                .createSaveFileDialog(descriptor, mainPanel)
+                .save((VirtualFile) null, "code-marker-rules.xml");
+        if (target == null) {
+            return;
         }
 
-        @Override
-        protected Transferable createTransferable(JComponent c) {
-            assert (c == table);
-            indices = table.getSelectedRows();
-            return new Transferable() {
-                @Override
-                public DataFlavor[] getTransferDataFlavors() {
-                    return new DataFlavor[]{localObjectFlavor};
-                }
-
-                @Override
-                public boolean isDataFlavorSupported(DataFlavor flavor) {
-                    return localObjectFlavor.equals(flavor);
-                }
-
-                @Override
-                public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
-                    if (!isDataFlavorSupported(flavor)) {
-                        throw new UnsupportedFlavorException(flavor);
-                    }
-                    return indices[0];
-                }
-            };
-        }
-
-        @Override
-        public int getSourceActions(JComponent c) {
-            return TransferHandler.MOVE;
-        }
-
-        @Override
-        public boolean importData(TransferHandler.TransferSupport support) {
-            if (!canImport(support)) {
-                return false;
-            }
-
-            JTable.DropLocation dl = (JTable.DropLocation) support.getDropLocation();
-            int dropRow = dl.getRow();
-            int max = tableModel.getRowCount();
-            if (dropRow < 0 || dropRow > max) {
-                dropRow = max;
-            }
-
-            try {
-                int rowFrom = (Integer) support.getTransferable().getTransferData(localObjectFlavor);
-                if (rowFrom != dropRow) {
-                    if (dropRow > rowFrom) {
-                        dropRow--;
-                    }
-                    tableModel.moveRow(rowFrom, dropRow);
-                    table.getSelectionModel().addSelectionInterval(dropRow, dropRow);
-                    return true;
-                }
-            } catch (Exception e) {
-                // do nothing
-            }
-
-            return false;
-        }
-
-        @Override
-        protected void exportDone(JComponent c, Transferable data, int action) {
-            indices = null;
+        // The exported file uses the same shape as the settings file, so it can be hand edited
+        CodeMarkerSettingsState exported = new CodeMarkerSettingsState();
+        exported.classIconMappings.addAll(tableModel.getMappings());
+        try {
+            JDOMUtil.write(XmlSerializer.serialize(exported), target.getFile().toPath());
+        } catch (Exception e) {
+            Messages.showErrorDialog(mainPanel, "Could not write the file: " + e.getMessage(), "Export Failed");
         }
     }
 
+    private void importRules() {
+        stopEditing();
+
+        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.singleFile()
+                .withTitle("Import Code Marker Rules")
+                .withDescription("Select a file exported from Code Marker")
+                .withExtensionFilter("xml");
+        VirtualFile file = FileChooser.chooseFile(descriptor, mainPanel, null, null);
+        if (file == null) {
+            return;
+        }
+
+        List<CodeMarkerSettingsState.ClassIconMapping> imported;
+        int unknownIcons;
+        try {
+            CodeMarkerSettingsState state = XmlSerializer.deserialize(
+                    JDOMUtil.load(Path.of(file.getPath())), CodeMarkerSettingsState.class);
+            imported = new ArrayList<>();
+            unknownIcons = 0;
+            for (CodeMarkerSettingsState.ClassIconMapping mapping : state.classIconMappings) {
+                String iconName = orEmpty(mapping.getIconName());
+                if (IconResource.getIconPath(iconName) == null) {
+                    // The file may come from another plugin version that knows other icons
+                    iconName = ClassIconTableModel.DEFAULT_ICON_NAME;
+                    unknownIcons++;
+                }
+                imported.add(new CodeMarkerSettingsState.ClassIconMapping(
+                        orEmpty(mapping.getClassName()),
+                        orEmpty(mapping.getAnnotationName()),
+                        orEmpty(mapping.getMethodName()),
+                        iconName));
+            }
+        } catch (Exception e) {
+            Messages.showErrorDialog(mainPanel,
+                    "Could not read the rules from this file: " + e.getMessage(), "Import Failed");
+            return;
+        }
+
+        if (imported.isEmpty()) {
+            Messages.showInfoMessage(mainPanel, "This file contains no rules.", "Nothing to Import");
+            return;
+        }
+
+        List<CodeMarkerSettingsState.ClassIconMapping> current = tableModel.getMappings();
+        if (!current.isEmpty()) {
+            int choice = Messages.showYesNoCancelDialog(mainPanel,
+                    "Replace the " + current.size() + " rule(s) in the table with the "
+                            + imported.size() + " imported one(s), or add them below?",
+                    "Import Rules", "Replace", "Add", "Cancel", null);
+            if (choice == Messages.CANCEL) {
+                return;
+            }
+            if (choice == Messages.NO) {
+                imported.addAll(0, current);
+            }
+        }
+
+        tableModel.setMappings(imported);
+
+        if (unknownIcons > 0) {
+            Messages.showInfoMessage(mainPanel,
+                    unknownIcons + " rule(s) referenced an unknown icon and now use the default one.",
+                    "Imported");
+        }
+    }
+
+    private void stopEditing() {
+        if (table != null && table.isEditing()) {
+            table.getCellEditor().stopCellEditing();
+        }
+    }
+
+    private static String orEmpty(String value) {
+        return value == null ? "" : value;
+    }
 }

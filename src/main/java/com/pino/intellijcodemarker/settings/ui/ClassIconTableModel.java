@@ -1,5 +1,6 @@
 package com.pino.intellijcodemarker.settings.ui;
 
+import com.intellij.util.ui.EditableModel;
 import com.pino.intellijcodemarker.resource.IconResource;
 import com.pino.intellijcodemarker.settings.CodeMarkerSettingsState;
 
@@ -7,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassIconTableModel extends AbstractTableModel {
+public class ClassIconTableModel extends AbstractTableModel implements EditableModel {
 
     public static final int COLUMN_COUNT = 4;
     public static final String DEFAULT_ICON_NAME = IconResource.getDefaultIconName();
@@ -56,11 +57,13 @@ public class ClassIconTableModel extends AbstractTableModel {
         return true;
     }
 
+    @Override
     public void addRow() {
         mappings.add(new CodeMarkerSettingsState.ClassIconMapping("", "", "", DEFAULT_ICON_NAME));
         fireTableRowsInserted(mappings.size() - 1, mappings.size() - 1);
     }
 
+    @Override
     public void removeRow(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < mappings.size()) {
             mappings.remove(rowIndex);
@@ -78,14 +81,20 @@ public class ClassIconTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public void moveRow(int fromIndex, int toIndex) {
-        if (fromIndex >= 0 && fromIndex < mappings.size() &&
-            toIndex >= 0 && toIndex < mappings.size() &&
-            fromIndex != toIndex) {
-
-            CodeMarkerSettingsState.ClassIconMapping mapping = mappings.remove(fromIndex);
-            mappings.add(toIndex, mapping);
-            fireTableRowsUpdated(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex));
+    /** Called by the reorder buttons and by dragging a row to a new position. */
+    @Override
+    public void exchangeRows(int fromIndex, int toIndex) {
+        if (!canExchangeRows(fromIndex, toIndex)) {
+            return;
         }
+        mappings.add(toIndex, mappings.remove(fromIndex));
+        fireTableRowsUpdated(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex));
+    }
+
+    @Override
+    public boolean canExchangeRows(int fromIndex, int toIndex) {
+        return fromIndex >= 0 && fromIndex < mappings.size()
+                && toIndex >= 0 && toIndex < mappings.size()
+                && fromIndex != toIndex;
     }
 }
