@@ -133,10 +133,11 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         explanationPanel.setBorder(JBUI.Borders.emptyTop(10));
 
         String[] explanations = {
-                "• Each rule needs a class name or an annotation; when both are filled in, both must match",
-                "• To select all methods in the class, please leave the method name field empty",
-                "• Class names and annotations accept a fully qualified name or a simple name, and both are matched on super classes, interfaces and overridden methods as well",
-                "• If multiple rules match, the first one takes precedence"
+                "• A rule needs a class name or an annotation",
+                "• Empty method name matches all methods",
+                "• Names may be simple or fully qualified",
+                "• Super classes and interfaces count too",
+                "• First match wins; drag rows to reorder"
         };
         for (int i = 0; i < explanations.length; i++) {
             if (i > 0) {
