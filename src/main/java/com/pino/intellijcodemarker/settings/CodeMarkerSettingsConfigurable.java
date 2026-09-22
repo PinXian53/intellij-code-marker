@@ -204,12 +204,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         settings.classIconMappings.addAll(mappings);
         settings.ruleChanged();
 
-        // Drop the cached markers and repaint the gutters of the files that are already open
-        for (Project project : ProjectManager.getInstance().getOpenProjects()) {
-            if (!project.isDisposed()) {
-                DaemonCodeAnalyzer.getInstance(project).restart();
-            }
-        }
+        repaintOpenFiles();
     }
 
     @Override
@@ -237,6 +232,22 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
         tableModel = null;
     }
 
+    /**
+     * Drops the cached markers and repaints the gutters of the files that are already open.
+     * <p>
+     * Deprecated from 2026.2 on, where it takes a reason argument. That overload does not exist in
+     * the older IDEs this plugin supports, so calling it would trade a warning for a hard
+     * incompatibility.
+     */
+    @SuppressWarnings("deprecation")
+    private static void repaintOpenFiles() {
+        for (Project project : ProjectManager.getInstance().getOpenProjects()) {
+            if (!project.isDisposed()) {
+                DaemonCodeAnalyzer.getInstance(project).restart();
+            }
+        }
+    }
+
     private void moveSelectedRow(int delta) {
         stopEditing();
         int selectedRow = table.getSelectedRow();
@@ -252,8 +263,10 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     private void exportRules() {
         stopEditing();
 
+        // The array picks the varargs constructor on purpose: the (String, String, String) overload
+        // only exists from 2025.1 on, and binding to it breaks the plugin on older IDEs
         FileSaverDescriptor descriptor = new FileSaverDescriptor(
-                "Export Code Marker Rules", "Save the rules in this table to a file", "xml");
+                "Export Code Marker Rules", "Save the rules in this table to a file", new String[]{"xml"});
         VirtualFileWrapper target = FileChooserFactory.getInstance()
                 .createSaveFileDialog(descriptor, mainPanel)
                 .save((VirtualFile) null, "code-marker-rules.xml");
@@ -274,10 +287,11 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     private void importRules() {
         stopEditing();
 
-        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.singleFile()
-                .withTitle("Import Code Marker Rules")
-                .withDescription("Select a file exported from Code Marker")
-                .withExtensionFilter("xml");
+        // singleFile() and withTitle()/withDescription() are newer spellings of the same thing;
+        // these ones have been around for far longer
+        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("xml");
+        descriptor.setTitle("Import Code Marker Rules");
+        descriptor.setDescription("Select a file exported from Code Marker");
         VirtualFile file = FileChooser.chooseFile(descriptor, mainPanel, null, null);
         if (file == null) {
             return;
