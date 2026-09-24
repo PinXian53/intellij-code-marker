@@ -16,37 +16,41 @@
 
 > Jetbrains Marketplace: https://plugins.jetbrains.com/plugin/27955-code-marker
 
-<b>Intellij Code Marker</b> is a developer productivity plugin.
-It enables you to define custom markers for specific classes or methods by assigning meaningful icons—making key parts of your code instantly recognizable.
+<b>Code Marker</b> puts an icon in the editor gutter next to Java method calls that match rules you define,
+so the calls that matter in your project, such as database access, remote calls or transactional services,
+stand out while you read the code.
 
-With intuitive visual cues embedded directly into the editor, Intellij Code Marker helps you identify important components at a glance, streamline navigation, and better understand your project’s structure.
+## Features
 
-## 🔧 Key Features
-
-### 🎯 Custom Highlight Rules
-Easily create rules by entering any class name, annotation or method name and selecting an icon from a built-in icon set.
-
+### Rules by Class, Annotation and Method
+Match calls by the class that declares the method, by an annotation on the method or its class, by the method name, or any combination of them.
 Every field you fill in has to match, so a rule can be as broad as every call into an annotated class, or as narrow as a single method on a single class.
-Class names and annotations may be written as a fully qualified name (`org.springframework.stereotype.Service`) or as a simple name (`Service`), and both are matched on super classes, interfaces and overridden methods as well.
-<br>
+
+- **Inheritance aware**: super classes, interfaces and overridden methods are checked as well, so a rule on an interface also marks calls through its implementations.
+- **Simple or fully qualified names**: write `Service` or `org.springframework.stereotype.Service`, with or without the leading `@`.
+- **Built-in icon set**: pick an icon for each rule from the bundled icons.
+
 ![settings.png](pic/settings.png)
 
-### 🔁 Reorderable Rules, Import and Export
-Rules are evaluated from top to bottom and the first match wins, so the order matters.
-Drag a row, or use the arrow buttons in the toolbar, to change it.
-The toolbar also exports the rule list to a file and imports it back, which makes a set of rules easy to share with the rest of the team.
+### Ordered Rules, Import and Export
+Rules are checked from top to bottom and the first match wins.
+Reorder them by dragging a row or with the arrow buttons in the toolbar.
+The toolbar also saves the rule list to an XML file and loads it back, so you can share your rules with your team.
 
-### 👁️ Visual Indicators in the Editor Gutter
-Icons appear in the left gutter of the editor, right next to the corresponding code.
-This makes it easy to visually scan and spot critical parts of your application without having to read every line.
-<br>
+### Gutter Icons
+Matching method calls get their rule's icon in the left gutter, so you can spot them without reading every line.
+
 ![line-marker.png](pic/line-marker.png)
 
-### 💬 Descriptive Tooltips
-Hover over an icon in the gutter to display a tooltip with a custom description.
-This gives you helpful context about the marked element’s role or purpose.
-<br>
+### Documentation on Hover
+Hovering a gutter icon shows the documentation of the called method.
+
 ![line-marker-2.png](pic/line-marker-2.png)
+
+## Getting Started
+1. Open **Settings | Tools | Code Marker**.
+2. Add a rule and fill in a class name, an annotation, or both. The method name is optional; leaving it empty matches every method.
+3. Choose an icon and apply. Open editors are updated right away.
 
 ## License & Attributions
 See [ICON.md](./ICON.md) for icon sources and license details.
