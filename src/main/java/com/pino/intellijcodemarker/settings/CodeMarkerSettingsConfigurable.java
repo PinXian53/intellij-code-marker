@@ -35,6 +35,7 @@ import java.awt.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CodeMarkerSettingsConfigurable implements Configurable {
 
@@ -159,6 +160,15 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
     public boolean isModified() {
         if (tableModel == null) return false;
 
+        // A cell still being typed in has not reached the model yet
+        if (table != null && table.isEditing()) {
+            Object editorValue = table.getCellEditor().getCellEditorValue();
+            Object modelValue = tableModel.getValueAt(table.getEditingRow(), table.getEditingColumn());
+            if (!Objects.equals(editorValue, modelValue)) {
+                return true;
+            }
+        }
+
         CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
         List<CodeMarkerSettingsState.ClassIconMapping> currentMappings = tableModel.getMappings();
 
@@ -201,7 +211,10 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
 
         CodeMarkerSettingsState settings = CodeMarkerSettingsState.getInstance();
         settings.classIconMappings.clear();
-        settings.classIconMappings.addAll(mappings);
+        // Store copies: sharing rows with the table would make later edits look unmodified
+        for (CodeMarkerSettingsState.ClassIconMapping mapping : mappings) {
+            settings.classIconMappings.add(mapping.copy());
+        }
         settings.ruleChanged();
 
         repaintOpenFiles();
@@ -214,12 +227,7 @@ public class CodeMarkerSettingsConfigurable implements Configurable {
             // Create deep copies of the mappings to prevent immediate changes to settings
             List<CodeMarkerSettingsState.ClassIconMapping> copiedMappings = new ArrayList<>();
             for (CodeMarkerSettingsState.ClassIconMapping original : settings.classIconMappings) {
-                copiedMappings.add(new CodeMarkerSettingsState.ClassIconMapping(
-                        original.getClassName(),
-                        original.getAnnotationName(),
-                        original.getMethodName(),
-                        original.getIconName()
-                ));
+                copiedMappings.add(original.copy());
             }
             tableModel.setMappings(copiedMappings);
         }

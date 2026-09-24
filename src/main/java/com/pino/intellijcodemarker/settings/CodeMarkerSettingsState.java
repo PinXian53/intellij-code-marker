@@ -73,6 +73,11 @@ public final class CodeMarkerSettingsState implements PersistentStateComponent<C
             this.iconName = iconName;
         }
 
+        /** Returns an independent copy, so the settings UI and the saved state never share rows. */
+        public ClassIconMapping copy() {
+            return new ClassIconMapping(className, annotationName, methodName, iconName);
+        }
+
         public String getClassName() {
             return className;
         }
